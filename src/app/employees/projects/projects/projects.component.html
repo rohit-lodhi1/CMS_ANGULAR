@@ -1,0 +1,575 @@
+
+			<!-- Page Wrapper -->
+            <div class="page-wrapper">
+			
+				<!-- Page Content -->
+                <div class="content container-fluid">
+				
+					<!-- Page Header -->
+					<div class="page-header">
+						<div class="row align-items-center">
+							<div class="col">
+								<h3 class="page-title">{{"Projects"|titlecase}}</h3>
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+									<li class="breadcrumb-item active">Projects</li>
+								</ul>
+							</div>
+							<div class="col-auto float-right ml-auto">
+								<a href="#" *ngIf="permissions.isWriteable" class="btn add-btn" data-toggle="modal" data-target="#create_project"><i class="fa fa-plus"></i> Create Project</a>
+								<div class="view-icons">
+									<a (click)="changeView(false)" class="grid-view btn btn-link active"><i class="fa fa-th"></i></a>
+									<a (click)="changeView(true)" class="list-view btn btn-link"><i class="fa fa-bars"></i></a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- /Page Header -->
+					
+					<!-- Search Filter -->
+					<div class="row filter-row" >
+						<div class="col-sm-6 col-md-3">  
+							<div class="form-group form-focus">
+								<input type="text" class="form-control floating"
+								name="title" [(ngModel)]="searching.title"
+								>
+								<label class="focus-label"
+								
+								>Project Name</label>
+							</div>
+						</div>
+						<div class="col-sm-6 col-md-3">  
+							<div class="form-group form-focus">
+								<input type="date" class="form-control floating" 
+								name="deadline" [(ngModel)]="searching.deadline">
+								<label class="focus-label">Project Deadline</label>
+							</div>
+						</div>
+						<div class="col-sm-6 col-md-3"> 
+							<div class="form-group form-focus select-focus">
+								<input type="text" class="form-control floating" 
+								name="deadline" [(ngModel)]="searching.priority">
+							
+								<label class="focus-label">Priority</label>
+							</div>
+						</div>
+
+		
+						<div class="col-sm-6 col-md-3">  
+							<a  (click)="filter()" class="btn btn-success btn-block"> Search </a>  
+						</div>     
+                    </div>
+					<!-- Search Filter -->
+					
+
+					 <!--  Grid View  -->
+					<div class="row" *ngIf="!isListView && permissions.isReadable">
+						<div class="col-lg-4 col-sm-6 col-md-4 col-xl-3" *ngFor="let project of projects">
+							<div class="card">
+								<div class="card-body">
+									<div class="dropdown dropdown-action profile-action">
+										<a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+										<div class="dropdown-menu dropdown-menu-right">
+											<a class="dropdown-item" *ngIf="permissions.isEditable" (click)="setEditData(project.id)" data-toggle="modal" data-target="#edit_project"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+											<a class="dropdown-item" *ngIf="permissions.isDeleteable" (click)="confirm(project.id)" data-toggle="modal" data-target="#delete_project"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
+										</div>
+									</div>
+									<h4 class="project-title"><a [routerLink]="'/dollop/projects/projects_view/'+project.id">{{project.title}}</a></h4>
+									<small class="block text-ellipsis m-b-15">
+										<span class="text-xs">1</span> <span class="text-muted">open tasks, </span>
+										<span class="text-xs">9</span> <span class="text-muted">tasks completed</span>
+									</small>
+									<p class="text-muted">{{project.description}}
+									</p>
+									<div class="pro-deadline m-b-15">
+										<div class="sub-title">
+											Deadline:
+										</div>
+										<div class="text-muted">
+											<!-- {{project.deadline | date:'dd-MM-yyyy'}} -->
+											{{project.deadline|dateFormat}}
+										</div>
+									</div>
+									<div class="project-members m-b-15">
+										<div>Project Leader :</div>
+										<ul class="team-members">
+											<li *ngFor="let member of project.projectMembers; index as i">
+												<a *ngIf="member.isLeader && i<5" [routerLink]="baseRoute+'/employee/employee_profile/'+member.userId.id" data-toggle="tooltip" [title]="member.userId.firstName"><img alt="" [src]="imageUrl+member.userId.profileName"></a>
+											</li>
+										</ul>
+									</div>
+									<div class="project-members m-b-15">
+										<div>Team :</div>
+										<ul class="team-members">
+											<li *ngFor="let member of project.projectMembers; index as i">
+												<a  *ngIf="!member.isLeader && i<5" [routerLink]="baseRoute+'/employee/employee_profile/'+member.userId.id" data-toggle="tooltip" [title]="member.userId.firstName"><img alt="" [src]="imageUrl+member.userId.profileName"></a>
+											</li>
+										
+										</ul>
+									</div>
+									<p class="m-b-5">Progress <span class="text-success float-right">40%</span></p>
+									<div class="progress progress-xs mb-0">
+										<div class="progress-bar bg-success" role="progressbar" data-toggle="tooltip" title="40%" style="width: 40%"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+						
+						
+						<div class="col-lg-4 col-sm-6 col-md-4 col-xl-3">
+							<div class="card">
+								<div class="card-body">
+									<div class="dropdown dropdown-action profile-action">
+										<a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+										<div class="dropdown-menu dropdown-menu-right">
+											<a class="dropdown-item" href="#" data-toggle="modal" data-target="#edit_project"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+											<a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_project"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
+										</div>
+									</div>
+									<h4 class="project-title"><a href="project-view.html">Hospital Administration</a></h4>
+									<small class="block text-ellipsis m-b-15">
+										<span class="text-xs">12</span> <span class="text-muted">open tasks, </span>
+										<span class="text-xs">4</span> <span class="text-muted">tasks completed</span>
+									</small>
+									<p class="text-muted">Lorem Ipsum is simply dummy text of the printing and
+										typesetting industry. When an unknown printer took a galley of type and
+										scrambled it...
+									</p>
+									<div class="pro-deadline m-b-15">
+										<div class="sub-title">
+											Deadline:
+										</div>
+										<div class="text-muted">
+											17 Apr 2019
+										</div>
+									</div>
+									<div class="project-members m-b-15">
+										<div>Project Leader :</div>
+										<ul class="team-members">
+											<li *ngFor="let member of project.projectMembers; index as i">
+												<a *ngIf="member.isLeader && i<5" [routerLink]="'/employees/profile/'+member.userId.id" data-toggle="tooltip" title="Jeffery Lalor"><img alt="" src="assets/img/profiles/avatar-16.jpg"></a>
+											</li>
+										</ul>
+									</div>
+									<div class="project-members m-b-15">
+										<div>Team :</div>
+										<ul class="team-members">
+											<li *ngFor="let member of project.projectMembers; index as i">
+												<a  *ngIf="!member.isLeader && i<5" [routerLink]="baseRoute+'/employee/employee_profile/'+member.userId.id" data-toggle="tooltip" title="John Doe"><img alt="" src="assets/img/profiles/avatar-02.jpg"></a><a *ngIf="i>5" class="all-users">+15</a>
+											</li>
+											<li>
+												<a href="#" data-toggle="tooltip" title="Richard Miles"><img alt="" src="assets/img/profiles/avatar-09.jpg"></a>
+											</li>
+											<li>
+												<a href="#" data-toggle="tooltip" title="John Smith"><img alt="" src="assets/img/profiles/avatar-10.jpg"></a>
+											</li>
+											<li>
+												<a href="#" data-toggle="tooltip" title="Mike Litorus"><img alt="" src="assets/img/profiles/avatar-05.jpg"></a>
+											</li>
+											<li class="dropdown avatar-dropdown">
+												<a href="#" class="all-users dropdown-toggle" data-toggle="dropdown" aria-expanded="false">+15</a>
+												<div class="dropdown-menu dropdown-menu-right">
+													<div class="avatar-group">
+														<a class="avatar avatar-xs" href="#">
+															<img alt="" src="assets/img/profiles/avatar-02.jpg">
+														</a>
+														<a class="avatar avatar-xs" href="#">
+															<img alt="" src="assets/img/profiles/avatar-09.jpg">
+														</a>
+														<a class="avatar avatar-xs" href="#">
+															<img alt="" src="assets/img/profiles/avatar-10.jpg">
+														</a>
+														<a class="avatar avatar-xs" href="#">
+															<img alt="" src="assets/img/profiles/avatar-05.jpg">
+														</a>
+														<a class="avatar avatar-xs" href="#">
+															<img alt="" src="assets/img/profiles/avatar-11.jpg">
+														</a>
+														<a class="avatar avatar-xs" href="#">
+															<img alt="" src="assets/img/profiles/avatar-12.jpg">
+														</a>
+														<a class="avatar avatar-xs" href="#">
+															<img alt="" src="assets/img/profiles/avatar-13.jpg">
+														</a>
+														<a class="avatar avatar-xs" href="#">
+															<img alt="" src="assets/img/profiles/avatar-01.jpg">
+														</a>
+														<a class="avatar avatar-xs" href="#">
+															<img alt="" src="assets/img/profiles/avatar-16.jpg">
+														</a>
+													</div>
+													<div class="avatar-pagination">
+														<ul class="pagination">
+															<li class="page-item">
+																<a class="page-link" href="#" aria-label="Previous">
+																	<span aria-hidden="true">«</span>
+																	<span class="sr-only">Previous</span>
+																</a>
+															</li>
+															<li class="page-item"><a class="page-link" href="#">1</a></li>
+															<li class="page-item"><a class="page-link" href="#">2</a></li>
+															<li class="page-item">
+																<a class="page-link" href="#" aria-label="Next">
+																	<span aria-hidden="true">»</span>
+																<span class="sr-only">Next</span>
+																</a>
+															</li>
+														</ul>
+													</div>
+												</div>
+											</li>
+										</ul>
+									</div>
+									<p class="m-b-5">Progress <span class="text-success float-right">40%</span></p>
+									<div class="progress progress-xs mb-0">
+										<div class="progress-bar bg-success" role="progressbar" data-toggle="tooltip" title="40%" style="width: 40%"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!--- Grid View End --->
+
+					<!--- List View   --->
+					<div class="row" *ngIf="isListView && permissions.isReadable">
+						<div class="col-md-12">
+							<div class="table-responsive">
+								<table class="table table-striped custom-table datatable">
+									<thead>
+										<tr>
+											<th>Project</th>
+											<th>Project Id</th>
+											<th>Leader</th>
+											<th>Team</th>
+											<th>Deadline</th>
+											<th>Priority</th>
+											<th>Status</th>
+											<th class="text-right">Action</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr *ngFor="let project of projects">
+											<td>
+												<a [routerLink]="'/dollop/projects/projects_view/'+project.id">{{project.title}}</a>
+											</td>
+											<td>PRO-00{{project.id}}</td>
+											<td>
+												<ul class="team-members">
+													
+													<li *ngFor="let member of project.projectMembers">
+														<a *ngIf="member.isLeader" [routerLink]="baseRoute+'/employee/employee_profile/'+member.userId.id" data-toggle="tooltip" [title]="member.userId.firstName"><img alt="" [src]="imageUrl+member.userId.profileName"></a>
+													</li>
+												
+												</ul>
+											</td>
+											<td>
+												<ul class="team-members">
+													<li *ngFor="let member of project.projectMembers ; index as i">
+															<a *ngIf="!member.isLeader && i<5" [routerLink]="baseRoute+'/employee/employee_profile/'+member.userId.id" [title]="member.userId.firstName" data-toggle="tooltip"><img alt=""[src]="imageUrl+member.userId.profileName"></a><a *ngIf="i>5" class="all-users">+15</a>
+													</li>
+													<li>
+														<a href="#" title="Richard Miles" data-toggle="tooltip"><img alt="" src="assets/img/profiles/avatar-09.jpg"></a>
+													</li>
+													
+												</ul>
+											</td>
+											<td>{{project.deadline | date:'dd-MM-yyyy'}}</td>
+											<td>
+												<div class="dropdown action-label">
+													<a href="" class="btn btn-white btn-sm btn-rounded dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-dot-circle-o text-danger">{{project.priority}} </i></a>
+													<div class="dropdown-menu">
+														<a class="dropdown-item"*ngIf="permissions.isEditable" (click)="updateStatus(project.id,'High','priority') "><i class="fa fa-dot-circle-o text-danger"></i> High</a>
+														<a class="dropdown-item"*ngIf="permissions.isEditable"(click)="updateStatus(project.id,'Medium','priority') "><i class="fa fa-dot-circle-o text-warning"></i> Medium</a>
+														<a class="dropdown-item" *ngIf="permissions.isEditable"(click)="updateStatus(project.id,'Low','priority') "><i class="fa fa-dot-circle-o text-success"></i> Low</a>
+													</div>
+												</div>
+											</td>
+														
+											
+											<td>
+												<div class="dropdown action-label">
+													<a href="" class="btn btn-white btn-sm btn-rounded dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i [ngClass]="'fa fa-dot-circle-o '+(project.status=='Active'?'text-success':'text-danger')"> {{project.status}}</i> </a>
+													<div class="dropdown-menu">
+														<a class="dropdown-item" *ngIf="permissions.isEditable" (click)="updateStatus(project.id,'Completed','status')"><i class="fa fa-dot-circle-o text-success"></i> Completed</a>
+														<a class="dropdown-item" *ngIf="permissions.isEditable" (click)="updateStatus(project.id,'InProgress','status')"><i class="fa fa-dot-circle-o text-danger"></i> InProgress</a>
+													</div>
+												</div>
+											</td>
+											<td class="text-right">
+												<div class="dropdown dropdown-action">
+													<a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+													<div class="dropdown-menu dropdown-menu-right">
+														<a class="dropdown-item" *ngIf="permissions.isEditable" (click)="setEditData(project.id)" data-toggle="modal" data-target="#edit_project"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+														<a class="dropdown-item" (click)="confirm(project.id)" *ngIf="permissions.isDeleteable" data-toggle="modal" data-target="#delete_project"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
+													</div>
+												</div>
+											</td>
+										</tr>
+										
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<!--- List View End--->
+
+                </div>
+				<!-- /Page Content -->
+				
+				<!-- Create Project Modal -->
+				<div id="create_project" class="modal custom-modal fade" role="dialog" *ngIf="permissions.isWriteable">
+					<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">Create Project</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<form>
+					
+									<div class="row">
+										<div class="col-sm-6">
+											<div class="form-group">
+												<label>Title</label>
+												<input class="form-control" type="text" name="title" [(ngModel)]="project.title">
+											</div>
+										</div>
+										<div class="col-md-6">
+											<div class="form-group">
+												<label class="col-form-label">Project Type</label>
+													<input class="form-control" placeholder="Select Type"   list="project" name="projectType" [(ngModel)]="project.projectType"/>
+													<datalist id="project">
+													  <option value="Client Project"></option>
+													  <option value="Intern Project"></option>
+												</datalist>
+											</div>
+										</div>
+									</div>
+									
+								
+
+									<div class="row">
+										<div class="col-md-6">
+											<div class="form-group">
+												<label class="col-form-label">Client</label>
+													<input class="form-control" placeholder="Select clients"  list="clients" name="id" [(ngModel)]="project.clientId.id" />
+													<datalist id="clients">
+													  <option *ngFor="let client of clients" [value]="client.id">{{client.companyName}}</option>
+													  <option ></option>
+												</datalist>
+											</div>
+										</div>
+										
+											<div class="col-md-6">
+												<div class="form-group">
+													<label>Price</label>
+													<input placeholder="$50" class="form-control" type="text" name="price" [(ngModel)]="project.price">
+												</div>
+											</div>
+									</div>
+									<div class="form-group">
+										<label>Description</label>
+										<textarea rows="4" class="form-control " placeholder="Enter description here" name="description" [(ngModel)]="project.description"></textarea>
+									</div>
+									<div class="row">
+										<div class="col-sm-6">
+											<div class="form-group">
+												<label>Start Date</label>
+												
+													<input class="form-control " type="date" name="startDate" [(ngModel)]="project.startDate">
+												
+											</div>
+										</div>
+										<div class="col-sm-6">
+											<div class="form-group">
+												<label>End Date</label>
+												
+													<input class="form-control " type="date" name="deadline" [(ngModel)]="project.deadline" >
+												
+											</div>
+										</div>
+									</div>
+									
+									<div class="row">
+										<div class="col-sm-6">
+											<div class="form-group">
+												<label>Labels</label>
+												<input class="form-control" placeholder="Select labels"  name="label" (ngModelChange)="addLabels(inp)"  [(ngModel)]="label" #inp list="labels"  />
+													<datalist id="labels" >
+													  <option *ngFor="let label of labels" [value]="label" >{{label}}</option>
+													  <option  >Priority</option>
+												</datalist>
+											</div>
+										</div>
+										
+									</div>
+									<div class="row">
+										<div class="form-group">
+											<label>Upload Files</label>
+[											<input class="form-control"  type="file" (change)="selectedFile($event)">
+]										</div>
+									</div>
+									
+										<h3>Files Selected : </h3>
+										
+									
+									<div class="card-body" *ngIf="project.projectFiles.length!=0">
+										<div class="table-responsive">
+											<table class="table table-striped mb-0">
+												<thead>
+													<tr >
+														<th>File Name</th>
+														<th>Size</th>
+														<th >Action</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr  *ngFor="let file of project.projectFiles ; index as i" >
+														<td>{{file.name}}</td>
+														<td>{{file.size | filesize}}</td>
+														<td  (click)="removeFile(file)"> <div style="cursor: pointer !important; "><i  class="fa fa-remove" style="font-size:18px;color:rgb(217, 60, 60)"></i></div></td>
+													</tr>
+													
+												</tbody>
+											</table>
+										</div>
+								
+								</div>
+									<div class="submit-section">
+										<button *ngIf="permissions.isWriteable" (click)="addProject()" data-dismiss="modal" class="btn btn-primary submit-btn">Submit</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- /Create Project Modal -->
+				
+				<!-- Edit Project Modal -->
+				<div id="edit_project" class="modal custom-modal fade" role="dialog" *ngIf="permissions.isEditable">
+					<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">Edit Project</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<form>
+									<div class="row">
+										<div class="col-sm-6">
+											<div class="form-group">
+												<label>Title</label>
+												<input class="form-control" type="text" name="title"  [(ngModel)]="project.title">
+											</div>
+										</div>
+										<div class="col-md-6">
+											<div class="form-group">
+												<label class="col-form-label">Project Type</label>
+													<input class="form-control" placeholder="Select Type"   list="project" name="projectType" [(ngModel)]="project.projectType"/>
+													<datalist id="project">
+													  <option value="Client Project"></option>
+													  <option value="Intern Project"></option>
+												</datalist>
+											</div>
+										</div>
+									</div>
+									
+								
+
+									<div class="row">
+										<div class="col-md-6">
+											<div class="form-group">
+												<label class="col-form-label">Client</label>
+													<input class="form-control" placeholder="Select clients"  list="clients" name="id" [(ngModel)]="project.clientId.id" />
+													<datalist id="clients">
+													  <option *ngFor="let client of clients" [value]="client.id">{{client.companyName}}</option>
+													  <option ></option>
+												</datalist>
+											</div>
+										</div>
+										
+											<div class="col-md-6">
+												<div class="form-group">
+													<label>Price</label>
+													<input placeholder="$50" class="form-control" type="text" name="price" [(ngModel)]="project.price">
+												</div>
+											</div>
+									</div>
+									<div class="form-group">
+										<label>Description</label>
+										<textarea rows="4" class="form-control summernote" placeholder="Enter description here" name="description" [(ngModel)]="project.description"></textarea>
+									</div>
+									<div class="row">
+										<div class="col-sm-6">
+											<div class="form-group">
+												<label>Start Date</label>
+												
+													<input class="form-control " type="date" name="startDate" [(ngModel)]="project.startDate">
+												
+											</div>
+										</div>
+										<div class="col-sm-6">
+											<div class="form-group">
+												<label>End Date</label>
+												
+													<input class="form-control " type="date" name="deadline" [(ngModel)]="project.deadline" >
+												
+											</div>
+										</div>
+									</div>
+									
+									<div class="row">
+										<div class="col-sm-6">
+											<div class="form-group">
+												<label>Labels</label>
+												<input class="form-control" placeholder="Select clients"  name="label" (ngModelChange)="addLabels(inp)"  [(ngModel)]="label" #inp list="labels"  />
+													<datalist id="labels" >
+													  <option *ngFor="let label of labels" [value]="label" >{{label}}</option>
+													  <option  >Priority</option>
+												</datalist>
+											</div>
+										</div>
+										
+									</div>
+									<div class="submit-section">
+										<button *ngIf="permissions.isEditable" (click)="updateProject()" data-dismiss="modal" class="btn btn-primary submit-btn">Submit</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- /Edit Project Modal -->
+				
+				<!-- Delete Project Modal -->
+				<div class="modal custom-modal fade" id="delete_project" role="dialog" *ngIf="permissions.isDeleteable">
+					<div class="modal-dialog modal-dialog-centered">
+						<div class="modal-content">
+							<div class="modal-body">
+								<div class="form-header">
+									<h3>Delete Project</h3>
+									<p>Are you sure want to delete?</p>
+								</div>
+								<div class="modal-btn delete-action">
+									<div class="row">
+										<div class="col-6">
+											<a *ngIf="permissions.isDeleteable" (click)="deleteProject()"  data-dismiss="modal" class="btn btn-primary continue-btn">Delete</a>
+										</div>
+										<div class="col-6">
+											<a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- /Delete Project Modal -->
+				
+            </div>
+			<!-- /Page Wrapper -->

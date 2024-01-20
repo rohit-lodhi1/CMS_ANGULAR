@@ -1,0 +1,317 @@
+<!-- Page Wrapper -->
+<div class="page-wrapper">
+			
+    <!-- Page Content -->
+    <div class="content container-fluid">
+    
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h3 class="page-title">Goal Tracking</h3>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Goal Tracking</li>
+                    </ul>
+                </div>
+                <div class="col-auto float-right ml-auto">
+                    <a href="#"  *ngIf="permissions.isWriteable" class="btn add-btn" data-toggle="modal" data-target="#add_goal"><i class="fa fa-plus"></i> Add New</a>
+                </div>
+            </div>
+        </div>
+        <!-- /Page Header -->
+        <!-- ṣearching bar -->
+        <div class="row filter-row">
+            <div class="col-sm-6 col-md-3">  
+                <div class="form-group form-focus">
+                    <input type="text" class="form-control floating" name="id" [(ngModel)]="searching.id">
+                    <label class="focus-label">goalList ID</label>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">  
+                <div class="form-group form-focus">
+                    <input type="text" class="form-control floating" name="subject" [(ngModel)]="searching.subject">
+                    <label class="focus-label">subject  </label>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">  
+                <div class="form-group form-focus">
+                    <label>Select GoalTpye <span class="text-danger">*</span></label>
+                    <select  [(ngModel)]="searching.goalType.goalType" name="id" >
+                        <option *ngFor="let item of GoalTypes" [value]="item.goalType">{{ item.goalType }}</option>
+                      </select>
+                  </div>
+            </div>
+                <div class="col-sm-6 col-md-3">  
+                <a (click)="filter()" class="btn btn-success btn-block"> Search </a>  
+            </div>
+        </div>
+        <!-- Search Filter -->
+    <!---- pagination -->
+    
+<mat-paginator #paginator
+class="demo-paginator"
+(page)="handlePageEvent($event)"
+[length]="length"
+[pageSize]="pageSize"
+[disabled]="disabled"
+[showFirstLastButtons]="showFirstLastButtons"
+[pageSizeOptions]="showPageSizeOptions ? pageSizeOptions : []"
+[hidePageSize]="hidePageSize"
+[pageIndex]="pageIndex"
+aria-label="Select page">
+</mat-paginator>
+<!---pagination end -->
+
+        
+        <div class="row">
+            <div class="col-md-12" *ngIf="permissions.isReadable">
+                <div class="table-responsive">
+                    <table class="table table-striped custom-table mb-0 datatable">
+                        <thead>
+                            <tr>
+                                <th style="width: 30px;">#</th>
+                                <th>Goal Type</th>
+                                <th>Subject</th>
+                                <th>Target Achievement</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Description </th>
+                                <th>Status </th>
+                                <th>Progress </th>
+                                <th class="text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr  *ngFor="let goalList of goalTypeList">                            
+                                <td>{{goalList.id}}</td>
+                                <td>{{goalList.goalType.goalType}}</td>
+
+                                <td>{{goalList.subject}}</td>
+                                <td>{{goalList.targetAchievement}}</td>
+                                <td>{{goalList.startDate}}</td>
+                                <td>{{goalList.endDate}}</td>
+                                <td>{{goalList.description}}</td>
+
+                               
+
+                                <td>
+                                    <div class="dropdown action-label">
+                                        <a href="#" class="btn btn-white btn-sm btn-rounded dropdown-toggle"
+                                            data-toggle="dropdown" aria-expanded="false"><i
+                                                [ngClass]="'fa fa-dot-circle-o ' + (goalList.status=='Active'?'text-success':'text-danger')">
+                                                {{goalList.status}} </i></a>
+                                        <div class="dropdown-menu" *ngIf="permissions.isEditable">
+                                            <a class="dropdown-item"
+                                                (click)="updateGoalListStatus(goalList.id,'Active')"><i
+                                                    class="fa fa-dot-circle-o text-success"></i> Active</a>
+                                            <a class="dropdown-item"
+                                                (click)="updateGoalListStatus(goalList.id,'InActive')"><i
+                                                    class="fa fa-dot-circle-o text-danger"></i> Inactive</a>
+                                        </div>
+                                    </div>
+
+                                </td>
+
+
+
+                                <td><p class="mb-1">Completed 73%</p><div class="progress" style="height:5px"><div class="progress-bar bg-primary progress-sm" style="width: 73%;height:10px;"></div></div></td>
+                                
+                                <td class="text-right">
+                                    <div class="dropdown dropdown-action">
+                                        <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            <a class="dropdown-item" *ngIf="permissions.isEditable" (click)="setEditData(goalList.id)" data-toggle="modal" data-target="#edit_goal"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                            <a class="dropdown-item" *ngIf="permissions.isDeleteable" (click)="confirm(goalList.id)" href="#" data-toggle="modal" data-target="#delete_goal"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Content -->
+
+    <!-- Add Goal Modal -->
+    <div id="add_goal" class="modal custom-modal fade" *ngIf="permissions.isWriteable" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Goal Tracking</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group"> 
+                                    <label>Select GoalTpye <span class="text-danger">*</span></label>
+                                    <select  [(ngModel)]="goalList.goalType.id" name="id" >
+                                        <option *ngFor="let item of GoalTypes" [value]="item.id">{{ item.goalType }}</option>
+                                      </select>
+                                                              </div>
+                              
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-form-label">Subject</label>
+                                        <input class="form-control" type="text" name="subject" [(ngModel)]="goalList.subject">
+                                    </div>
+                               
+                                
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-form-label">Target Achievement</label>
+                                    <input class="form-control" type="text" name="targetAchievement" [(ngModel)]="goalList.targetAchievement" >
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Start Date <span class="text-danger">*</span></label>
+                                     <input class="form-control " [min]="todayDate" max="2024-12-31" name="startDate" [(ngModel)]="goalList.startDate" type="date">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>End Date <span class="text-danger">*</span></label>
+                                    <input class="form-control " [min]="todayDate" max="2024-12-31" name="enddate" [(ngModel)]="goalList.endDate" type="date">
+                                
+                                 
+                                </div>
+                            </div>
+                            
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label>Description <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" rows="4" name="description" [(ngModel)]="goalList.description"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label>Status <span class="text-danger">*</span></label>
+                                    <select  [(ngModel)]="goalList.status" name="Status" >
+                                        <option name="status" value="Active">Active</option>
+                                        <option name="status" value="InActive">InActive</option>
+                                      </select>
+                                                              </div>                           </div>
+                        </div>
+                        <div class="submit-section">
+                            <button (click)="addGoalList()" data-dismiss="modal" class="btn btn-primary submit-btn">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /Add Goal Modal -->
+    
+    <!-- Edit Goal Modal -->
+    <div id="edit_goal" class="modal custom-modal fade"  *ngIf="permissions.isEditable" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Goal Tracking</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>  <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group"> 
+                                    <label>Select GoalTpye <span class="text-danger">*</span></label>
+                                    <select  [(ngModel)]="goalList.goalType.id" name="id" >
+                                        <option *ngFor="let item of GoalTypes" [value]="item.id">{{ item.goalType }}</option>
+                                      </select>
+                                                              </div>
+                              
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-form-label">Subject</label>
+                                        <input class="form-control" type="text" name="subject" [(ngModel)]="goalList.subject">
+                                    </div>
+                               
+                                
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-form-label">Target Achievement</label>
+                                    <input class="form-control" type="text" name="targetAchievement" [(ngModel)]="goalList.targetAchievement" >
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Start Date <span class="text-danger">*</span></label>
+                                     <input class="form-control " [min]="todayDate" max="2024-12-31" name="startDate" [(ngModel)]="goalList.startDate" type="date">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>End Date <span class="text-danger">*</span></label>
+                                    <div class="cal-icon">     <input class="form-control " [min]="todayDate" max="2024-12-31" name="enddate" [(ngModel)]="goalList.endDate" type="date"> </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label>Description <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" rows="4" name="description" [(ngModel)]="goalList.description"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label>Status <span class="text-danger">*</span></label>
+                                    <select  [(ngModel)]="goalList.status" name="Status" >
+                                        <option name="status" value="Active">Active</option>
+                                        <option name="status" value="InActive">InActive</option>
+                                      </select>
+                                                              </div>                           </div>
+                        </div>
+               <div class="submit-section">
+                            <button (click)="updateGoalList()" data-dismiss="modal" class="btn btn-primary submit-btn">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /Edit Goal Modal -->
+    
+    <!-- Delete Goal Modal -->
+    <div class="modal custom-modal fade" id="delete_goal" *ngIf="permissions.isDeleteable" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="form-header">
+                        <h3>Delete Goal Tracking List</h3>
+                        <p>Are you sure want to delete?</p>
+                    </div>
+                    <div class="modal-btn delete-action">
+                        <div class="row">
+                            <div class="col-6">
+                                <a (click)="deleteGoalList()" data-dismiss="modal"  class="btn btn-primary continue-btn">Delete</a>
+                            </div>
+                            <div class="col-6">
+                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /Delete Goal Modal -->
+
+</div>
+<!-- /Page Wrapper -->
